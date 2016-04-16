@@ -12,7 +12,7 @@ if (!exists("donorFeatures")) {
 
 # Classify the donors -----------------------------------------------------
 
-donorFeaturesMat <- as.matrix(select(donorFeatures, -Donor))
+donorFeaturesMat <- as.matrix(donorFeatures[, 2:ncol(donorFeatures)])
 
 # NAs are non-donations, so 0 is cool.
 donorFeaturesMat[is.na(donorFeaturesMat)] <- 0
