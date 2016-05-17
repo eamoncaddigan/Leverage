@@ -32,8 +32,10 @@ allTransactions <- filter(allTransactions,
 allTransactions <- allTransactions %>%
   inner_join(tbl(db, "filer_candidate"), by = "FilerName")
 
-# Pull this data into RAM
-allTransactionsLocal <- collect(allTransactions)
+# Pull the data into RAM for subsequent analyses
+allTransactionsLocal <- allTransactions %>%
+  select(Donor = EntityName, Candidate, Amount) %>% 
+  collect()
 
 
 # Narrow things down to a feature space for donors ------------------------
@@ -50,7 +52,7 @@ cleanupNames <- function(messyNames) {
 
 # VERY rough cleaning of donors
 allTransactionsLocal <- allTransactionsLocal %>% 
-  mutate(Donor = cleanupNames(EntityName))
+  mutate(Donor = cleanupNames(Donor))
 
 # First pass: amount per candidate
 donorData <- allTransactionsLocal %>%
@@ -60,3 +62,5 @@ donorData <- allTransactionsLocal %>%
 
 donorFeatures <- donorData %>%
   spread(key = Candidate, value = Amount)
+
+saveRDS(donorFeatures, "donorFeatures.rds")
