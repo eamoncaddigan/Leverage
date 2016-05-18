@@ -4,11 +4,7 @@ library(dplyr)
 library(tidyr)
 library(RPostgreSQL)
 
-# Hack: make sure this is run after donorFeatures.R
-if (!exists("donorFeatures")) {
-  stop("Run this after donorFeatures.R. HACKY CODE!")
-}
-
+donorFeatures <- readRDS("donorFeatures.rds")
 
 # Classify the donors -----------------------------------------------------
 
@@ -41,17 +37,17 @@ candidateSources <- donorFeaturesClassified %>%
 
 # Put the amounts into the DB ---------------------------------------------
 
-# load("dblogin.RData")     # Brings in dbuser/dbpassword
-# con <- dbConnect(dbDriver("PostgreSQL"), dbname = "demhack2016",
-#                  host = "campaign-finance.phl.io", port = 5432,
-#                  user = dbuser, password = dbpassword)
-tableExists <- dbGetQuery(db$con, "SELECT EXISTS (
+load("dblogin.RData")     # Brings in dbuser/dbpassword
+con <- dbConnect(dbDriver("PostgreSQL"), dbname = "demhack2016",
+                 host = "campaign-finance.phl.io", port = 5432,
+                 user = dbuser, password = dbpassword)
+tableExists <- dbGetQuery(con, "SELECT EXISTS (
     SELECT 1 
     FROM   pg_catalog.pg_class c
     JOIN   pg_catalog.pg_namespace n ON n.oid = c.relnamespace
     WHERE  c.relname = 'candidate_sources'
 )")
 if (!tableExists) {
-  dbWriteTable(db$con, name = "candidate_sources", as.data.frame(candidateSources), row.names = FALSE)
+  dbWriteTable(con, name = "candidate_sources", as.data.frame(candidateSources), row.names = FALSE)
 }
 
