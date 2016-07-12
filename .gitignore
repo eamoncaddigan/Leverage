@@ -186,3 +186,4 @@ target/
 # Specific files
 dblogin.RData
 
+.Rproj.user
